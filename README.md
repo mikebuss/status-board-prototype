@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# status-board-prototype
 
-## Getting Started
+Public intranet status board for the assessment center: live gait queue count and assessment station utilization per location. No auth. Data is simulated.
 
-First, run the development server:
+## Pages
+
+| Route   | Shows                     |
+| ------- | ------------------------- |
+| `/`     | All locations             |
+| `/s`    | S building                |
+| `/neu`  | NEU, both floors split    |
+| `/neu1` | NEU floor 1               |
+| `/neu2` | NEU floor 2               |
+| `/ccac` | CCAC building             |
+
+Pages poll `GET /api/status` every 5 seconds.
+
+## Status ranges
+
+| Metric                        | Green | Yellow        | Red   |
+| ----------------------------- | ----- | ------------- | ----- |
+| Gait queue (people)           | < 5   | >= 5 and < 10 | >= 10 |
+| Assessment stations utilized  | < 80% | >= 80% and < 90% | >= 90% |
+
+Thresholds live in `src/lib/status.ts` (`queueLevel`, `utilizationLevel`).
+
+## Fake data
+
+`simulate()` in `src/lib/status.ts` derives values from wall-clock time, so every screen shows the same numbers and each location cycles through all three ranges over a few minutes. Replace it with the real source when one exists; the `Snapshot` shape is the contract the pages consume.
+
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev          # http://localhost:3000
+npm run build && npm start
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
