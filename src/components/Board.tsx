@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import {
   AREA_BY_ID,
   queueLevel,
@@ -27,18 +28,19 @@ export const STATION_TEXT: Record<Level, string> = {
 
 const QUEUE_MAX = 15;
 
-export function AreaMetrics({ status, compact }: { status: AreaStatus; compact?: boolean }) {
+export function AreaMetrics({ status, heading }: { status: AreaStatus; heading: "h2" | "h3" }) {
   const qLevel = queueLevel(status.queue);
   const uLevel = utilizationLevel(status.utilization);
   return (
     <>
       <Metric
-        compact={compact}
+        heading={heading}
         label="Gait queue"
-        value={status.queue}
-        unit={status.queue === 1 ? "person waiting" : "people waiting"}
         level={qLevel}
         levelText={QUEUE_TEXT[qLevel]}
+        value={status.queue}
+        valueText={String(status.queue)}
+        unit={status.queue === 1 ? "person waiting" : "people waiting"}
         max={QUEUE_MAX}
         zones={[
           { level: "good", to: 5 },
@@ -53,12 +55,13 @@ export function AreaMetrics({ status, compact }: { status: AreaStatus; compact?:
         ]}
       />
       <Metric
-        compact={compact}
+        heading={heading}
         label="Assessment stations"
-        value={status.utilization}
-        unit="% in use"
         level={uLevel}
         levelText={STATION_TEXT[uLevel]}
+        value={status.utilization}
+        valueText={`${status.utilization}%`}
+        unit="in use"
         detail={`${status.stationsInUse} of ${status.stationsTotal}`}
         max={100}
         zones={[
@@ -78,13 +81,45 @@ export function AreaMetrics({ status, compact }: { status: AreaStatus; compact?:
 }
 
 const NAV = [
-  { href: "/", text: "All" },
+  { href: "/", text: "All locations" },
   { href: "/s", text: "S" },
   { href: "/neu", text: "NEU" },
-  { href: "/neu1", text: "NEU1" },
-  { href: "/neu2", text: "NEU2" },
+  { href: "/neu1", text: "NEU Floor 1" },
+  { href: "/neu2", text: "NEU Floor 2" },
   { href: "/ccac", text: "CCAC" },
 ];
+
+function LocationMenu({ current }: { current: string }) {
+  const menu = useRef<HTMLElement>(null);
+  return (
+    <>
+      <button
+        type="button"
+        className="menu-button"
+        popoverTarget="locations"
+        aria-label="Change location"
+      >
+        <svg viewBox="0 0 20 20" aria-hidden>
+          <circle cx="4" cy="10" r="1.6" />
+          <circle cx="10" cy="10" r="1.6" />
+          <circle cx="16" cy="10" r="1.6" />
+        </svg>
+      </button>
+      <nav id="locations" ref={menu} className="menu" popover="auto" aria-label="Locations">
+        {NAV.map((n) => (
+          <Link
+            key={n.href}
+            href={n.href}
+            aria-current={n.href === current ? "page" : undefined}
+            onClick={() => menu.current?.hidePopover()}
+          >
+            {n.text}
+          </Link>
+        ))}
+      </nav>
+    </>
+  );
+}
 
 export function Header({
   title,
@@ -112,13 +147,7 @@ export function Header({
           {new Date(updatedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
         </time>
       </p>
-      <nav className="nav" aria-label="Locations">
-        {NAV.map((n) => (
-          <Link key={n.href} href={n.href} aria-current={n.href === current ? "page" : undefined}>
-            {n.text}
-          </Link>
-        ))}
-      </nav>
+      <LocationMenu current={current} />
     </header>
   );
 }
@@ -151,12 +180,12 @@ export function Board({
       />
       <div className="board__body">
         {statuses.map((status) => (
-          <div className="area" key={status.id}>
+          <section className="area" key={status.id}>
             {split && <h2 className="area__name">{AREA_BY_ID[status.id].floor}</h2>}
             <div className="area__metrics">
-              <AreaMetrics status={status} compact={split} />
+              <AreaMetrics status={status} heading={split ? "h3" : "h2"} />
             </div>
-          </div>
+          </section>
         ))}
       </div>
     </main>

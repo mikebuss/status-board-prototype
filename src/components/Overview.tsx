@@ -10,10 +10,12 @@ export function Overview({ initial }: { initial: Snapshot }) {
 
   return (
     <main className="board">
-      <Header title="Assessment Center" current="/" updatedAt={snapshot.updatedAt} offline={offline} />
+      <Header title="All locations" current="/" updatedAt={snapshot.updatedAt} offline={offline} />
       <ul className="overview">
         {snapshot.areas.map((s) => {
           const area = AREA_BY_ID[s.id];
+          const qLevel = queueLevel(s.queue);
+          const uLevel = utilizationLevel(s.utilization);
           return (
             <li key={s.id}>
               <Link className="row" href={`/${s.id.toLowerCase()}`}>
@@ -21,15 +23,15 @@ export function Overview({ initial }: { initial: Snapshot }) {
                   {area.building}
                   {area.floor && <span className="row__floor">{area.floor}</span>}
                 </span>
-                <span className="row__stat" data-level={queueLevel(s.queue)}>
-                  <span className="row__value">{s.queue}</span>
-                  <span className="row__label">in gait queue</span>
-                  <span className="sr-only">{QUEUE_TEXT[queueLevel(s.queue)]}</span>
+                <span className="row__stat" data-level={qLevel}>
+                  <span className="row__label">Gait queue</span>
+                  <span className="row__status">{QUEUE_TEXT[qLevel]}</span>
+                  <span className="row__value">{s.queue} waiting</span>
                 </span>
-                <span className="row__stat" data-level={utilizationLevel(s.utilization)}>
-                  <span className="row__value">{s.utilization}%</span>
-                  <span className="row__label">stations in use</span>
-                  <span className="sr-only">{STATION_TEXT[utilizationLevel(s.utilization)]}</span>
+                <span className="row__stat" data-level={uLevel}>
+                  <span className="row__label">Stations</span>
+                  <span className="row__status">{STATION_TEXT[uLevel]}</span>
+                  <span className="row__value">{s.utilization}% in use</span>
                 </span>
               </Link>
             </li>

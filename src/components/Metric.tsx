@@ -4,42 +4,46 @@ type Zone = { level: Level; to: number };
 
 type MetricProps = {
   label: string;
-  value: number;
-  unit: string;
+  heading: "h2" | "h3";
   level: Level;
   levelText: string;
+  value: number;
+  valueText: string;
+  unit: string;
   detail?: string;
   max: number;
   zones: Zone[];
   ticks: { at: number; text: string; wide?: boolean }[];
-  compact?: boolean;
 };
 
 export function Metric({
   label,
-  value,
-  unit,
+  heading: Heading,
   level,
   levelText,
+  value,
+  valueText,
+  unit,
   detail,
   max,
   zones,
   ticks,
-  compact,
 }: MetricProps) {
   const pos = (n: number) => `${(Math.min(n, max) / max) * 100}%`;
-  return (
-    <section className={`metric ${compact ? "metric--compact" : ""}`} data-level={level}>
-      <h2 className="metric__label">{label}</h2>
 
-      <p className="metric__reading">
-        <span className="metric__value">{value}</span>
-        <span className="metric__unit">{unit}</span>
-      </p>
+  return (
+    <section className="metric" data-level={level}>
+      <Heading className="metric__label">{label}</Heading>
 
       <p className="metric__status">
         <span className="metric__dot" aria-hidden />
         {levelText}
+      </p>
+
+      <p className="metric__reading">
+        <span>
+          <strong>{valueText}</strong> {unit}
+        </span>
         {detail && <span className="metric__detail">{detail}</span>}
       </p>
 
